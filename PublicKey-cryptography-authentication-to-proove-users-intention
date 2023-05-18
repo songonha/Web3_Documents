@@ -1,0 +1,79 @@
+Public Key cryptography, authentication to proove users intention!
+hashMessage.js
+const { keccak256 } = require("ethereum-cryptography/keccak");
+const { utf8ToBytes } = require("ethereum-cryptography/utils");
+
+function hashMessage(message) {
+    const bytes = utf8ToBytes(message);
+    const hash = keccak256(bytes); 
+    return hash
+}
+
+module.exports = hashMessage;
+recoverKey.js
+const secp = require("ethereum-cryptography/secp256k1");
+const hashMessage = require("./hashMessage");
+
+async function recover(message, signature, recoveryBit) {
+    const recovered = secp.recoverPublicKey(hashMessage(message), signature, recoveryBit)
+    return recovered
+}
+
+module.exports = recover;
+signMessage.js
+const secp = require("ethereum-cryptography/secp256k1");
+const hashMessage = require('./hashMessage');
+
+const PRIVATE_KEY = "apud";
+
+async function signMessage(msg) {
+    const hash = hashMessage(msg)
+  const pubKey = secp.getPublicKey(PRIVATE_KEY);
+  const msgHash = hashMessage(msg);
+  const signature = await secp.sign(msgHash, PRIVATE_KEY, { recovered: true });
+  const isValid = secp.verify(signature, msgHash, pubKey);
+    return signature
+}
+
+module.exports = signMessage;
+test.js
+const signMessage = require('../signMessage');
+const hashMessage = require('../hashMessage');
+const { assert } = require('chai');
+const secp = require("ethereum-cryptography/secp256k1");
+const { toHex } = require("ethereum-cryptography/utils");
+
+const PRIVATE_KEY = "apud";
+
+describe('Sign Message', () => {
+    it('should return both a signature and a recovery bit', async () => {
+        const response = await signMessage('hello world');
+
+        const errMessage = "expected signMessage to return both a signature and recovery bit!";
+        assert(response.length, errMessage);
+        assert(response.length === 2, errMessage);
+
+        const [signature, recoveryBit] = response;
+        assert(signature.length, "expected signature to be a Uint8Array");
+        assert(typeof recoveryBit === "number", "expected the recovery bit to be a number");
+    });
+
+    it('should have been signed by the same private key', async () => {
+        const [sig, recoveryBit] = await signMessage('hello world');
+        const messageHash = hashMessage('hello world');
+        const recovered = secp.recoverPublicKey(messageHash, sig, recoveryBit);
+
+        const publicKey = secp.getPublicKey(PRIVATE_KEY);
+        assert.equal(toHex(recovered), toHex(publicKey));
+    });
+    
+     it('should recover the public key from a signed message', async () => {
+        const [sig, recoveryBit] = await signMessage('hello world');
+
+        const publicKey = secp.getPublicKey(PRIVATE_KEY);
+
+        const recovered = await recover('hello world', sig, recoveryBit);
+
+        assert.equal(toHex(recovered), toHex(publicKey));
+    });
+});
