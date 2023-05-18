@@ -1,5 +1,5 @@
 Public Key cryptography, authentication to proove users intention!
-hashMessage.js
+==================================hashMessage.js
 const { keccak256 } = require("ethereum-cryptography/keccak");
 const { utf8ToBytes } = require("ethereum-cryptography/utils");
 
@@ -10,7 +10,7 @@ function hashMessage(message) {
 }
 
 module.exports = hashMessage;
-recoverKey.js
+=====================================================recoverKey.js
 const secp = require("ethereum-cryptography/secp256k1");
 const hashMessage = require("./hashMessage");
 
@@ -20,7 +20,7 @@ async function recover(message, signature, recoveryBit) {
 }
 
 module.exports = recover;
-signMessage.js
+==================signMessage.js
 const secp = require("ethereum-cryptography/secp256k1");
 const hashMessage = require('./hashMessage');
 
@@ -36,7 +36,7 @@ async function signMessage(msg) {
 }
 
 module.exports = signMessage;
-test.js
+================test.js
 const signMessage = require('../signMessage');
 const hashMessage = require('../hashMessage');
 const { assert } = require('chai');
