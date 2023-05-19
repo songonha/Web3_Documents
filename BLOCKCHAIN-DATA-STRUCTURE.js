@@ -57,4 +57,38 @@ describe('Block', function() {
     })
 })
 =========================================================================
-    
+Task 3: 
+======> Blockchain.js
+const Block = require('./Block');
+
+class Blockchain {
+    constructor() {
+        this.chain = [ /* TODO: Create the genesis block here */ ];
+    }
+}
+
+module.exports = Blockchain;
+===> Block.js
+const Block = require('./Block');
+
+class Blockchain {
+    constructor() {
+        this.chain = [ /* TODO: Create the genesis block here */ ];
+    }
+}
+
+module.exports = Blockchain;
+=====> blockchainTest.js
+const Blockchain = require('../Blockchain');
+const Block = require('../Block');
+const assert = require('assert');
+
+describe('Blockchain', function() {
+    it('should have a genesis block', function() {
+        const blockchain = new Blockchain();
+        const genesisBlock = blockchain.chain[0];
+        assert(genesisBlock, 'Could not find the genesis block!');
+        assert(genesisBlock instanceof Block, 'genesis block should be a block!');
+    })
+})
+
